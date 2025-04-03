@@ -4,7 +4,13 @@ import { ColorStore } from "./ColorStore";
 class RootStore {
   lastUpdate: Date = new Date();
 
-  redColor = new ColorStore("#f00");
+  colors = [
+    new ColorStore("#f00", {
+      initialTimeRequired: 5000,
+      unlockedFromStart: true,
+    }),
+    new ColorStore("#00f", { initialTimeRequired: 30000 }),
+  ];
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -14,9 +20,13 @@ class RootStore {
     const now = new Date();
     const deltaTime = now.getTime() - this.lastUpdate.getTime();
 
-    this.redColor.tick(deltaTime);
+    this.colors.forEach((color) => color.tick(deltaTime));
 
     this.lastUpdate = now;
+  }
+
+  get unlockedColors() {
+    return this.colors.filter((color) => color.isUnlocked);
   }
 }
 
