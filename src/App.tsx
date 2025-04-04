@@ -1,9 +1,10 @@
 import { useEffect } from "react";
+import { observer } from "mobx-react";
 
 import { rootStore } from "./state/RootStore";
-import { observer } from "mobx-react";
 import { Inventory } from "./game/Inventory";
 import { ProgressBars } from "./game/ProgressBars";
+import { FeatureProgress } from "./game/FeatureProgress";
 
 const FPS = 60;
 
@@ -18,6 +19,7 @@ export const App = observer(() => {
     <>
       <Inventory />
       <ProgressBars />
+      <FeatureProgress />
     </>
   );
 });

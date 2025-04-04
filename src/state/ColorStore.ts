@@ -1,6 +1,10 @@
 import { makeAutoObservable } from "mobx";
 import tinycolor from "tinycolor2";
 
+import { UpgradeStore } from "./UpgradeStore";
+
+export type Color = "red" | "blue";
+
 interface Options {
   unlockedFromStart?: boolean;
   initialTimeRequired: number;
@@ -8,32 +12,42 @@ interface Options {
 
 export class ColorStore {
   amount: number = 0;
+  totalAmount: number = 0;
   isUnlocked: boolean;
   running: boolean = false;
   manual: boolean = true;
+  color: Color;
   private progress: number = 0;
-  private timeRequired: number;
+  private initialTimeRequired: number;
   private baseGain: number = 1;
-  private _color: string;
+
+  speedUpgrade = new UpgradeStore("Upgrade speed", { red: 1 });
+  valueUpgrade = new UpgradeStore("Upgrade value", { red: 50, blue: 5 });
 
   constructor(
-    color: string,
+    color: Color,
     { initialTimeRequired, unlockedFromStart }: Options
   ) {
-    makeAutoObservable(this, { color: false }, { autoBind: true });
+    makeAutoObservable(this, {}, { autoBind: true });
 
-    this.timeRequired = initialTimeRequired || 5000;
+    this.initialTimeRequired = initialTimeRequired || 5000;
     this.isUnlocked = unlockedFromStart || false;
-    this._color = color;
+    this.color = color;
   }
 
   tick(deltaTime: number) {
     if (!this.running) return;
 
+    const timeRequired = this.getTimeRequired();
+
     this.progress += deltaTime;
-    if (this.progress > this.timeRequired) {
+    if (this.progress > timeRequired) {
+      const gain = this.baseGain * (1 + this.valueUpgrade.bought);
+
       this.progress = 0;
-      this.amount += this.baseGain;
+      this.amount += gain;
+      this.totalAmount += gain;
+
       if (this.manual) {
         this.running = false;
       }
@@ -44,11 +58,31 @@ export class ColorStore {
     this.running = true;
   }
 
-  get color() {
-    return tinycolor(this._color);
+  getColorInstance() {
+    return tinycolor(this.color);
   }
 
-  get percentage() {
-    return (this.progress / this.timeRequired) * 100;
+  getPercentage() {
+    const timeRequired = this.getTimeRequired();
+    return (this.progress / timeRequired) * 100;
+  }
+
+  getVisibleUpgrades() {
+    return [this.speedUpgrade, this.valueUpgrade].filter((upgrade) =>
+      upgrade.isVisible()
+    );
+  }
+
+  getTimeRequired() {
+    return this.initialTimeRequired * Math.pow(0.75, this.speedUpgrade.bought);
+  }
+
+  unlock() {
+    this.isUnlocked = true;
+  }
+
+  setAutomatic() {
+    this.manual = false;
+    this.start();
   }
 }

@@ -1,17 +1,17 @@
 import { observer } from "mobx-react";
+
 import { rootStore } from "../state/RootStore";
+import { Resource } from "./components/Resource";
 
 export const Inventory = observer(() => {
   return (
     <div className="flex gap-4 px-16 pt-8">
-      {rootStore.unlockedColors.map((colorStore) => (
-        <div className="flex items-center gap-2">
-          <div
-            className="w-4 h-4 p-2"
-            style={{ background: colorStore.color.toString() }}
-          ></div>
-          <div className="text-sm">{colorStore.amount}</div>
-        </div>
+      {rootStore.getUnlockedColors().map((colorStore) => (
+        <Resource
+          key={colorStore.color}
+          color={colorStore.color}
+          amount={colorStore.amount}
+        />
       ))}
     </div>
   );
