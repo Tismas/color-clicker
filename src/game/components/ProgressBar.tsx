@@ -24,7 +24,7 @@ export const ProgressBar = observer(
             backgroundColor: foregroundColor,
           }}
         ></div>
-        <div className="ml-auto mr-auto flex gap-1 relative z-1 text-shadow-lg text-shadow-black select-none">
+        <div className="ml-auto mr-auto flex gap-1 relative z-1 text-shadow-lg text-shadow-black select-none text-lg">
           {children}
         </div>
       </div>

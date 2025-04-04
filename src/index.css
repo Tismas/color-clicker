@@ -3,3 +3,9 @@
 body {
   @apply bg-gray-900 text-gray-100;
 }
+
+* {
+  font-family: "VT323", monospace;
+  font-weight: 400;
+  font-style: normal;
+}

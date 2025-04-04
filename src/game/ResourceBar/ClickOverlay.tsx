@@ -11,7 +11,7 @@ export const ClickOverlay = observer(({ colorStore }: Props) => {
 
   return (
     <div
-      className="absolute w-full h-full flex justify-center items-center cursor-pointer text-lg font-bold z-10 rounded-2xl bg-black/50 hover:bg-black/30 transition-colors duration-200 select-none cursor-pointer"
+      className="absolute w-full h-full flex justify-center items-center cursor-pointer text-lg z-10 rounded-2xl bg-black/50 hover:bg-black/30 transition-colors duration-200 select-none cursor-pointer"
       onClick={() => colorStore.start()}
     >
       Click me!
