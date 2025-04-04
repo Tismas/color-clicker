@@ -20,7 +20,7 @@ export const Resource = observer(({ color, amount, className }: Props) => {
         style={{ background: colorInstance.toString() }}
       ></div>
       {typeof amount === "number" ? (
-        <div className="text-sm">{amount}</div>
+        <div className="text-sm">{Math.floor(amount)}</div>
       ) : null}
     </div>
   );

@@ -13,12 +13,12 @@ export const progression: ProgressionStepData[] = [
   {
     label: (
       <>
-        Collect <Resource className="ml-1 mr-1" color="red" amount={50} /> to
-        unlock <Resource className="ml-1" color="blue" />
+        Collect <Resource color="red" amount={25} /> to unlock{" "}
+        <Resource color="blue" />
       </>
     ),
     colorRequirement: {
-      red: 50,
+      red: 25,
     },
     onUnlock: () => {
       rootStore.getColorStore("blue").unlock();
@@ -27,12 +27,25 @@ export const progression: ProgressionStepData[] = [
   {
     label: (
       <>
-        Automate <Resource color="red" /> by collecting 100{" "}
-        <Resource color="blue" />
+        Collect <Resource color="blue" amount={50} /> to unlock{" "}
+        <Resource color="yellow" />
       </>
     ),
     colorRequirement: {
-      blue: 100,
+      blue: 50,
+    },
+    onUnlock: () => {
+      rootStore.getColorStore("yellow").unlock();
+    },
+  },
+  {
+    label: (
+      <>
+        Collect 100 <Resource color="yellow" /> to automate red resource
+      </>
+    ),
+    colorRequirement: {
+      yellow: 100,
     },
     onUnlock: () => {
       rootStore.getColorStore("red").setAutomatic();

@@ -2,15 +2,23 @@ import { makeAutoObservable } from "mobx";
 
 import { rootStore } from "./RootStore";
 import { CostType } from "../game/components/Cost";
+import { Color } from "./ColorStore";
+
+export interface UpgradeSaveData {
+  bought: number;
+  isUnlocked: boolean;
+}
 
 export class UpgradeStore {
   label: string;
   initialCost: CostType;
+
   bought: number = 0;
-  unlocked: boolean = false;
+  isUnlocked: boolean = false;
 
   constructor(label: string, initialCost: CostType) {
     makeAutoObservable(this, {}, { autoBind: true });
+
     this.label = label;
     this.initialCost = initialCost;
   }
@@ -19,10 +27,9 @@ export class UpgradeStore {
     if (!this.canBuy()) return;
     const cost = this.getCost();
 
-    rootStore.colors.forEach((colorStore) => {
-      const color = colorStore.color;
-      const colorCost = cost[color] || 0;
-      colorStore.amount -= colorCost;
+    Object.entries(cost).forEach(([color, cost]) => {
+      const colorStore = rootStore.getColorStore(color as Color);
+      colorStore.amount -= cost;
     });
 
     this.bought++;
@@ -31,38 +38,53 @@ export class UpgradeStore {
   canBuy() {
     const cost = this.getCost();
 
-    return rootStore.colors.every((colorStore) => {
-      const color = colorStore.color;
-      const colorCost = cost[color] || 0;
-      return colorStore.amount >= colorCost;
+    return Object.entries(cost).every(([color, cost]) => {
+      const colorStore = rootStore.getColorStore(color as Color);
+      return colorStore.amount >= cost;
     });
   }
 
   isVisible() {
-    if (this.unlocked) return true;
+    if (this.isUnlocked) return true;
 
-    const cost = this.getCost();
+    const shouldUnlock = Object.entries(this.initialCost).every(
+      ([color, cost]) => {
+        const colorStore = rootStore.getColorStore(color as Color);
+        return colorStore.totalAmount >= cost;
+      }
+    );
 
-    const shouldUnlock = rootStore.colors.every((colorStore) => {
-      const color = colorStore.color;
-      const colorCost = cost[color] || 0;
-      return colorStore.totalAmount >= colorCost;
-    });
+    if (shouldUnlock) {
+      this.unlock();
+    }
 
-    this.unlocked = shouldUnlock;
+    return this.isUnlocked;
+  }
 
-    return this.unlocked;
+  unlock() {
+    this.isUnlocked = true;
   }
 
   getCost() {
     const cost: CostType = {};
 
-    rootStore.colors.forEach((colorStore) => {
-      const colorCost =
-        (this.initialCost[colorStore.color] || 0) * Math.pow(1.5, this.bought);
-      cost[colorStore.color] = Math.ceil(colorCost);
+    Object.entries(this.initialCost).forEach(([color, initialCost]) => {
+      const colorCost = initialCost * Math.pow(1.5, this.bought);
+      cost[color as Color] = Math.ceil(colorCost);
     });
 
     return cost;
+  }
+
+  getSaveData(): UpgradeSaveData {
+    return {
+      bought: this.bought,
+      isUnlocked: this.isUnlocked,
+    };
+  }
+
+  loadSaveData(saveData: UpgradeSaveData) {
+    this.bought = saveData.bought;
+    this.isUnlocked = saveData.isUnlocked;
   }
 }

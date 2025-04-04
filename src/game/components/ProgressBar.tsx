@@ -14,7 +14,7 @@ export const ProgressBar = observer(
 
     return (
       <div
-        className="w-full rounded-full relative h-5 overflow-hidden flex items-center text-sm"
+        className="w-full rounded-full relative h-6 overflow-hidden flex items-center text-sm border-2 border-black"
         style={{ backgroundColor: backgroundColor }}
       >
         <div
@@ -24,7 +24,7 @@ export const ProgressBar = observer(
             backgroundColor: foregroundColor,
           }}
         ></div>
-        <div className="ml-auto mr-auto flex relative z-1 bg-black/40 px-4 rounded-2xl">
+        <div className="ml-auto mr-auto flex gap-1 relative z-1 text-shadow-lg text-shadow-black select-none">
           {children}
         </div>
       </div>

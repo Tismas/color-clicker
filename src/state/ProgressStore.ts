@@ -1,13 +1,19 @@
 import { makeAutoObservable } from "mobx";
+
 import { progression, ProgressionStepData } from "./data/progression";
 import { rootStore } from "./RootStore";
+import { Color } from "./ColorStore";
+
+export interface ProgressionSaveData {
+  step: number;
+}
 
 interface ProgressionStep extends ProgressionStepData {
   progress: number;
 }
 
 export class ProgressStore {
-  private step = 0;
+  step = 0;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -19,7 +25,7 @@ export class ProgressStore {
       return {
         colorRequirement: {},
         label: "Congratulations! You've completed the game.",
-        progress: 1,
+        progress: 100,
         onUnlock: () => {},
       };
     }
@@ -33,7 +39,7 @@ export class ProgressStore {
 
     const isCompleted = Object.entries(currentStep.colorRequirement).every(
       ([color, amount]) => {
-        const colorStore = rootStore.getColorStore(color as string);
+        const colorStore = rootStore.getColorStore(color as Color);
         return colorStore.totalAmount >= amount;
       }
     );
@@ -54,12 +60,22 @@ export class ProgressStore {
 
     const totalCollected = Object.entries(step.colorRequirement).reduce(
       (acc, [color, amount]) => {
-        const colorStore = rootStore.getColorStore(color as string);
+        const colorStore = rootStore.getColorStore(color as Color);
         return acc + Math.min(colorStore.totalAmount, amount);
       },
       0
     );
 
-    return Math.round((totalCollected / totalRequired) * 100);
+    return (totalCollected / totalRequired) * 100;
+  }
+
+  getSaveData(): ProgressionSaveData {
+    return {
+      step: this.step,
+    };
+  }
+
+  loadSaveData(saveData: ProgressionSaveData) {
+    this.step = saveData.step;
   }
 }
